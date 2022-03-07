@@ -1,23 +1,47 @@
-const canvas=document.getElementById("jscanvas");
+const INITIAL_COLOR="#000000";
+const ACCENT_COLOR="#eef295";
+const WHITE="#FFFFFF";
+
+const canvas=document.getElementById("jscanvas"); //canvas
 var ctx = canvas.getContext('2d');
 
-const size=document.getElementById("size");
-const colors=document.getElementsByClassName("colorJs");
+const size=document.getElementById("size"); //pensize
+const colors=document.getElementsByClassName("colorJs"); //color
 
-canvas.width = document.getElementsByClassName("canvas")[0].offsetWidth;
-canvas.height = document.getElementsByClassName("canvas")[0].offsetHeight;
+//mode button
+const fill=document.getElementById("fill");
+const paint=document.getElementById("paint");
+const clear=document.getElementById("clear");
+const save=document.getElementById("save");
+//initail
+const canvasWidth=document.getElementsByClassName("canvas")[0].offsetWidth;
+const canvasHeight=document.getElementsByClassName("canvas")[0].offsetHeight;
 
-ctx.strokeStyle="#000000"; //default color: black
+canvas.width = canvasWidth;
+canvas.height = canvasHeight;
+
+ctx.strokeStyle= INITIAL_COLOR;//default color: black
+paint.style.backgroundColor=ACCENT_COLOR; //default mode: paint
+
+//canvas 초기 배경
+ctx.fillStyle=WHITE;
+ctx.fillRect(0, 0,canvasWidth,canvasWidth );
+
+ctx.fillStyle=INITIAL_COLOR;
 ctx.lineWidth=2.5;
 
-let painting=false;
 
+let painting=false;
+let filling=false;
+
+//function
 function stopPainting(){
     painting=false;
 }
-
 function startPainting(){
-    painting=true;
+    if(!filling){
+        painting=true;
+    }
 }
 
 //canvas위에 마우스가 올라왔을때 좌표표시
@@ -43,14 +67,51 @@ function handleSizeChange(event){
 
 //색 변환
 function changeColor(event){ 
-    ctx.strokeStyle=event.target.style.backgroundColor;
+    const color=event.target.style.backgroundColor;
+    ctx.strokeStyle=color;
+    ctx.fillStyle=color;
 }
 
-if(canvas){
+function fillCanvas(){ //fill
+    painting=false;
+    filling=true;
+    fill.style.backgroundColor=ACCENT_COLOR;
+    paint.style.backgroundColor=WHITE;
+}
+function handleCanvasClick(){ //canvas click
+    if(filling){
+        ctx.fillRect(0, 0,canvasWidth,canvasWidth );
+    }
+}
+
+function handlePaintClick(){ //paint click
+    filling=false;
+    paint.style.backgroundColor=ACCENT_COLOR;
+    fill.style.backgroundColor=WHITE;
+}
+function onClear(){
+    ctx.clearRect(0, 0,canvasWidth,canvasWidth );
+}
+
+function handleCM(event){
+    event.preventDefault(); //우클릭 방지
+}
+
+function handleSaveClick(){ //image 저장
+    const image=canvas.toDataURL("image/png");
+    const link=document.createElement("a");
+    link.href=image;
+    link.download="image";
+    link.click();
+}
+//main
+if(canvas){ 
     canvas.addEventListener("mousemove",onMouseMove);
     canvas.addEventListener("mousedown",startPainting);
     canvas.addEventListener("mouseup",stopPainting);
     canvas.addEventListener("mouseleave",stopPainting);
+    canvas.addEventListener("click",handleCanvasClick);
+    canvas.addEventListener("contextmenu",handleCM); //우클릭
 }
 
 if(size){
@@ -58,3 +119,19 @@ if(size){
 }
 
 Array.from(colors).forEach(color=>color.addEventListener("click",changeColor));
+
+if(fill){
+    fill.addEventListener("click",fillCanvas);
+}
+
+if(paint){
+    paint.addEventListener("click",handlePaintClick);
+}
+
+if(clear){
+    clear.addEventListener("click",onClear);
+}
+
+if(save){
+    save.addEventListener("click",handleSaveClick);
+}
