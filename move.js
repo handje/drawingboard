@@ -90,7 +90,9 @@ function handlePaintClick(){ //paint click
     fill.style.backgroundColor=WHITE;
 }
 function onClear(){
-    ctx.clearRect(0, 0,canvasWidth,canvasWidth );
+    if(window.confirm("초기화하시겠습니까?")){ //clear여부 확인
+        ctx.clearRect(0, 0,canvasWidth,canvasWidth );
+    }
 }
 
 function handleCM(event){
@@ -98,11 +100,14 @@ function handleCM(event){
 }
 
 function handleSaveClick(){ //image 저장
-    const image=canvas.toDataURL("image/png");
-    const link=document.createElement("a");
-    link.href=image;
-    link.download="image";
-    link.click();
+    if(window.confirm("저장하시겠습니까?")){ //저장여부 확인
+        const imagename=window.prompt("이미지 파일 이름: ","image"); //파일 이름 입력
+        const image=canvas.toDataURL("image/png");
+        const link=document.createElement("a");
+        link.href=image;
+        link.download=imagename;
+        link.click();
+    }
 }
 //main
 if(canvas){ 
